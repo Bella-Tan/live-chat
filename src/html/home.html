@@ -1,0 +1,48 @@
+<html>
+<script src="/static/jquery-1.12.4.js"></script>
+<script>
+   $(function(){
+       $("#enterbtn").click(function(){
+        var userName =document.getElementById("userName").value;
+        var channel =document.getElementById("channel").value;
+        var role =document.getElementById("role").value;
+           <!--var args = {"channel": channel,"userName":userName,"role":role};-->
+        document.location.href = '/channel?channel='+channel+ '&userName=' + userName + '&role='+role;
+       })
+   })
+</script>
+<body>
+<h1>Welcome!</h1>
+<div class="am-u-sm-12" style="background:#acad53;">
+    <h3 style="text-align:center;margin-top:20px;margin-bottom:auto;padding:3px 0px;font-size:20px"> Happy Chat</h3>
+</div>
+<div class="am-u-sm-12" style="background:#F8F8F8;">
+    <h3 style="text-align:left;margin-top:20px;margin-bottom:auto;padding:3px 0px;font-size:15px">
+        Specify your role, user name and the channel you want to enter.
+    </h3>
+</div>
+<div class="am-u-sm-1">
+    <div style="background:#F8F8F8;margin-left:5px margin-top: 25px;margin-top:20px">
+        <label style="margin-left: 10px; width: 140px; height: 36px; margin-left: 25px;">User Name:</label>
+        <input type="text" id="userName"  style="width: 140px; height: 36px; margin-left: 5px;">
+        <label type="text" style="width: 140px; height: 36px; margin-left: 25px;">Login Role:</label>
+        <select id="role" style="width: 140px; height: 36px; margin-left: 5px;">
+            <option value="Instructor" selected="selected">Instructor</option>
+            <option value="Student">Student</option>
+        </select>
+        <label type="text" style="width: 140px; height: 36px; margin-left: 25px;">Channel:</label>
+        <select  id="channel" style="width: 140px; height: 36px; margin-left: 5px;">
+            <option value="1" selected="selected">Channel1</option>
+            <option value="2">Channel2</option>
+            <option value="3">Channel3</option>
+        </select>
+    </div>
+    <br/>
+    <div class="am-u-sm-1" style="background:#F8F8F8;">
+        <button id="enterbtn" style="width: 140px; height: 36px; margin-left: 25px; background:#3366FF;">Enter</button>
+    </div>
+
+</div>
+
+</body>
+</html>

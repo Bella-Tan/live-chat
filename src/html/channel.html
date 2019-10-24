@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8" />
+  <title>HappyChat</title>
+  <script src="/static/jquery-1.12.4.js"></script>
+  <script>
+        var msg_header = {}
+        var dayTime = new Date()
+        $(function(){
+            var channel = $("#channel").val()
+            var userName = $("#userName").val()
+            var role = $("#role").val()
+            window.onbeforeunload = function (ev) {
+                var message = msg_header
+                message["type"] = "exit"
+                message["ts"] = dayTime.getFullYear()+"-" + (dayTime.getMonth()+1) + "-" + dayTime.getDate()
+                sendText(message)
+                websocket.send(message)
+            }
+
+            $("#sendbtn").click(function(){
+                if ($('#new_msg').val() == "") {
+                    return
+                }
+                var message = {}
+                message["channel"] = msg_header["channel"]
+                message["user_id"] = msg_header["user_id"]
+                message["type"] = "msg"
+                message["msg"] = $('#new_msg').val()
+                message["ts"] = dayTime.getFullYear()+"-" + (dayTime.getMonth()+1) + "-" + dayTime.getDate()
+                sendText(message)
+            })
+            function requestText(){
+                host = "ws://localhost:8888/channel/chat?channel=" + channel + "&userName=" +userName+ "&role=" +role
+                websocket = new WebSocket(host)
+                websocket.onopen = function(ev) {
+                    dayTime.setTime(dayTime.getTime())
+                }
+                websocket.onmessage = function(ev){
+                    data = $.parseJSON(ev.data)
+                    if (data["type"] == "user_id") {
+                        msg_header["channel"] = data["channel"]
+                        msg_header["user_id"] = data["user_id"]
+                    }
+                    else if (data["type"] == "userlist") {
+                        var str = "";
+                        for(var i=0; i<data['userlist'].length; i++){
+                            str += "<li><span> "+ data['userlist'][i]['name'] + "</span></li>";
+                        }
+                        $('#user-list').html(str);
+
+                    }
+                    else if (data["type"] == "msg") {
+                        $('#message-list').append("<li><span> "+ data['msg']['fromname'] + " " + data['msg']['ts'] + ":" + data['msg']['content'] + "</span></li>");
+                    }
+                }
+                websocket.onerror = function(ev){}
+            }
+            requestText()
+            function sendText(context) {
+                websocket.send(JSON.stringify(context))
+            }
+        })
+
+  </script>
+  <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+        li {
+            list-style: none;
+        }
+        input {
+            border-radius: 5px;
+        }
+        .container {
+            bachgroud-color:#edf5f8;
+            display: flex;
+            margin: 10px 10px 10px 10px;
+        }
+        .chatleft {
+            background-color: #ffffff;
+            width: 25%;
+            left: 5px;
+            height: 100%;
+        }
+        .chatleft .top {
+            height: 10%;
+            color: grey;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+        }
+        .chatleft .center {
+            overflow-y: scroll;
+            height: 90%;
+        }
+        .chatleft .center ul{
+            padding-left: 5px;
+        }
+        .chatleft .center li{
+            margin: 5px;
+        }
+        .chatright {
+            background-color: #ffffff;
+            width: 75%;
+            height: 100%;
+        }
+        .chatright .center {
+            background-color: #edf5f8;
+            height: 65%;
+            overflow-y: scroll;
+        }
+        .chatright .center ul {
+            padding: 10px;
+        }
+        .chatright .center li {
+            margin: 10px;
+            width: 100%;
+        }
+        .chatright .center p{
+            display: inline-block;
+        }
+        .msgcard {
+            margin: 0 10px 0 10px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 60%;
+        }
+        .msgleft {
+            float: left;
+        }
+        .msgright {
+            /* float: right; */
+        }
+        .chatright .foot {
+            height: 25%;
+            background-color: #FBFCFC;
+            text-align: right;
+        }
+        .btn {
+            height: 40px;
+            width: 80px;
+            border-radius: 10px;
+            background-color: #58D68D;
+            color: white;
+            font-weight: bold;
+            margin:10px 20px 0 0;
+        }
+    </style>
+ </head>
+ <body class="box">
+  <input id="userName" type="hidden" value="{{userName}}" />
+  <input id="channel" type="hidden" value="{{channel}}" />
+  <input id="role" type="hidden" value="{{role}}" />
+  <div class="am-u-sm-12" style="background:#58D68D;">
+      <h3 style="text-align:center;margin-top:25px;margin-bottom:5px;padding:5px 5px;font-size:20px"> Channel{{channel}}</h3>
+  </div>
+    <div class="container">
+            <div class="chatleft">
+                <div class="top" style="background:#58D68D;">
+                  <h3 style="text-align:center;margin-top:5px;margin-bottom:5px;padding:5px 5px;font-size:15px"> User List:</h3>
+              </div>
+                <div class="center">
+                    <ul id="user-list">
+                        <li>
+                            <span style="margin-left: 10px;">Admin</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="chatright">
+                <div class="center">
+                    <ul id="message-list">
+                    </ul>
+                </div>
+                <br/>
+                <div class="foot">
+                    <textarea id="new_msg" style="width: 100%; resize: none; border: none; font-size:14px;" placeholder="text the message..."></textarea>
+                    <p style="text-align:center; margin-right:10px width: 200px; height: 36px;">
+                        <button onclick="close" class="btn"> Exit </button>
+                        <button id="sendbtn" class="btn">Send</button>
+                    </p >
+                </div>
+            </div>
+    </div>
+ </body>
+</html>
